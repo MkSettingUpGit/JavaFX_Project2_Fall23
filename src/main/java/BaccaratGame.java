@@ -203,6 +203,16 @@ public class BaccaratGame extends Application {
 				playerCardBox.getChildren().add(newCardGUI);
 				leftVBox.getChildren().removeAll();
 				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
+				if(gameLogic.evaluateBankerDraw(bankerHand,playerHand.get(playerHand.size()-1))){
+					newCard = theDealer.drawOne();
+					newCardGUI = generateCard(newCard.suite, newCard.value);
+					bankerHand.add(newCard);
+					pause.play();
+					bankerCardBox.getChildren().add(newCardGUI);
+					leftVBox.getChildren().removeAll();
+					leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
+				}
+
 			}
 			if(gameLogic.evaluateBankerDraw(bankerHand,null)){
 				Card newCard = theDealer.drawOne();
@@ -213,6 +223,7 @@ public class BaccaratGame extends Application {
 				leftVBox.getChildren().removeAll();
 				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 			}
+
 		});
 		return root;
 	}
