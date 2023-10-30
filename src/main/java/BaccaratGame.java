@@ -35,11 +35,11 @@ public class BaccaratGame extends Application {
 	double totalWinnings;
 
 	public HBox showCards(Pane card1, Pane card2){
-		HBox cardBox = new HBox(card1, card2);
+		HBox cardBox = new HBox(10, card1, card2);
 		return cardBox;
 	}
 	public HBox showCards(Pane card1, Pane card2, Pane card3){
-		HBox cardBox = new HBox(card1, card2, card3);
+		HBox cardBox = new HBox(10,card1, card2, card3);
 		return cardBox;
 	}
 	public Pane generateCard (String suite, int value){
@@ -178,7 +178,7 @@ public class BaccaratGame extends Application {
 		});
 		btnPlay.setOnAction(event->{
 			theDealer = new BaccaratDealer();
-
+			gameLogic = new BaccaratGameLogic();
 			bankerHand = theDealer.dealHand();
 			playerHand = theDealer.dealHand();
 			Card bankerCard1 = bankerHand.get(0);
@@ -199,18 +199,21 @@ public class BaccaratGame extends Application {
 				Card newCard = theDealer.drawOne();
 				Pane newCardGUI = generateCard(newCard.suite, newCard.value);
 				playerHand.add(newCard);
-				playerCardBox = showCards(card1,card2,newCardGUI);
-				leftVBox.getChildren().add(playerCardBox);
+				pause.play();
+				playerCardBox.getChildren().add(newCardGUI);
+				leftVBox.getChildren().removeAll();
+				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 			}
-			if(gameLogic.evaluateBankerDraw(bankerHand,playerHand.get(playerHand.size()-1))){
+			if(gameLogic.evaluateBankerDraw(bankerHand,null)){
 				Card newCard = theDealer.drawOne();
 				Pane newCardGUI = generateCard(newCard.suite, newCard.value);
 				bankerHand.add(newCard);
-				bankerCardBox = showCards(card3, card4, newCardGUI);
-				leftVBox.getChildren().add(bankerCardBox);
+				pause.play();
+				bankerCardBox.getChildren().add(newCardGUI);
+				leftVBox.getChildren().removeAll();
+				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 			}
 		});
-
 		return root;
 	}
 
