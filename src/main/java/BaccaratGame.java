@@ -18,6 +18,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.scene.control.ComboBox;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -34,6 +36,10 @@ public class BaccaratGame extends Application {
 
 	public HBox showCards(Pane card1, Pane card2){
 		HBox cardBox = new HBox(card1, card2);
+		return cardBox;
+	}
+	public HBox showCards(Pane card1, Pane card2, Pane card3){
+		HBox cardBox = new HBox(card1, card2, card3);
 		return cardBox;
 	}
 	public Pane generateCard (String suite, int value){
@@ -57,8 +63,10 @@ public class BaccaratGame extends Application {
 
 		Text text3 = new Text (Integer.toString(value));
 		text3.setFont(Font.font(18));
+		text3.setX(50);
+		text3.setY(70);
 
-		cardPane.getChildren().addAll(bg, text1, text2);
+		cardPane.getChildren().addAll(bg, text1, text2,text3);
 		return cardPane;
 	}
 	public double evaluateWinnings(){
@@ -99,7 +107,7 @@ public class BaccaratGame extends Application {
 
 		Text dealerScore = new Text("Banker: ");
 		Text playerScore = new Text("Player: ");
-		leftVBox.getChildren().addAll(dealerScore, playerScore);
+
 
 		VBox rightVBox = new VBox(20);
 		rightVBox.setAlignment(Pos.CENTER);
@@ -177,27 +185,34 @@ public class BaccaratGame extends Application {
 			Card bankerCard2 = bankerHand.get(1);
 			Card playerCard1 = playerHand.get(0);
 			Card playerCard2 = playerHand.get(1);
-			Pane card1 = generateCard(bankerCard1.suite,bankerCard1.gameValue);
-			Pane card2 = generateCard(bankerCard2.suite,bankerCard2.gameValue);
-			Pane card3 = generateCard(playerCard1.suite,playerCard1.gameValue);
-			Pane card4 = generateCard(playerCard2.suite,playerCard2.gameValue);
+			Pane card1 = generateCard(bankerCard1.suite,bankerCard1.value);
+			Pane card2 = generateCard(bankerCard2.suite,bankerCard2.value);
+			Pane card3 = generateCard(playerCard1.suite,playerCard1.value);
+			Pane card4 = generateCard(playerCard2.suite,playerCard2.value);
 			HBox bankerCardBox = showCards(card1,card2);
 			HBox playerCardBox = showCards(card3,card4);
+			PauseTransition pause = new PauseTransition(Duration.seconds(3));
+
 			leftVBox.getChildren().setAll(dealerScore,bankerCardBox, playerScore, playerCardBox);
 
 			if(gameLogic.evaluatePlayerDraw(playerHand)){
-				playerHand.add(theDealer.drawOne());
+				Card newCard = theDealer.drawOne();
+				Pane newCardGUI = generateCard(newCard.suite, newCard.value);
+				playerHand.add(newCard);
+				playerCardBox = showCards(card1,card2,newCardGUI);
+				leftVBox.getChildren().add(playerCardBox);
 			}
 			if(gameLogic.evaluateBankerDraw(bankerHand,playerHand.get(playerHand.size()-1))){
-				bankerHand.add(theDealer.drawOne());
+				Card newCard = theDealer.drawOne();
+				Pane newCardGUI = generateCard(newCard.suite, newCard.value);
+				bankerHand.add(newCard);
+				bankerCardBox = showCards(card3, card4, newCardGUI);
+				leftVBox.getChildren().add(bankerCardBox);
 			}
 		});
 
 		return root;
 	}
-
-
-
 
 	//feel free to remove the starter code from this method
 	@Override
@@ -237,10 +252,6 @@ public class BaccaratGame extends Application {
 
 		// compare hands and determine the winner of the round
 		// display game result message and user winnings/losings
-
-
-
-
 
 	}
 	public static void main(String[] args) {
