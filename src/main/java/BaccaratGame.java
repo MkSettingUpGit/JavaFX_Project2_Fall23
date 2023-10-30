@@ -105,8 +105,6 @@ public class BaccaratGame extends Application {
 		VBox leftVBox = new VBox(50);
 		leftVBox.setAlignment(Pos.TOP_CENTER);
 
-		Text dealerScore = new Text("Banker: ");
-		Text playerScore = new Text("Player: ");
 
 
 		VBox rightVBox = new VBox(20);
@@ -192,6 +190,11 @@ public class BaccaratGame extends Application {
 			HBox bankerCardBox = showCards(card1,card2);
 			HBox playerCardBox = showCards(card3,card4);
 			PauseTransition pause = new PauseTransition(Duration.seconds(3));
+			int dealerTotal = gameLogic.handTotal(bankerHand);
+			int playerTotal = gameLogic.handTotal(playerHand);
+			Text dealerScore = new Text("Banker: " + dealerTotal);
+			Text playerScore = new Text("Player: " + playerTotal);
+
 
 			leftVBox.getChildren().setAll(dealerScore,bankerCardBox, playerScore, playerCardBox);
 
@@ -199,6 +202,10 @@ public class BaccaratGame extends Application {
 				Card newCard = theDealer.drawOne();
 				Pane newCardGUI = generateCard(newCard.suite, newCard.value);
 				playerHand.add(newCard);
+				playerTotal = gameLogic.handTotal(playerHand);
+				playerScore = new Text("Player: " + playerTotal);
+				dealerTotal = gameLogic.handTotal(bankerHand);
+				dealerScore = new Text("Banker: " + dealerTotal);
 				pause.play();
 				playerCardBox.getChildren().add(newCardGUI);
 				leftVBox.getChildren().removeAll();
@@ -207,6 +214,10 @@ public class BaccaratGame extends Application {
 					newCard = theDealer.drawOne();
 					newCardGUI = generateCard(newCard.suite, newCard.value);
 					bankerHand.add(newCard);
+					playerTotal = gameLogic.handTotal(playerHand);
+					playerScore = new Text("Player: " + playerTotal);
+					dealerTotal = gameLogic.handTotal(bankerHand);
+					dealerScore = new Text("Banker: " + dealerTotal);
 					pause.play();
 					bankerCardBox.getChildren().add(newCardGUI);
 					leftVBox.getChildren().removeAll();
@@ -218,6 +229,10 @@ public class BaccaratGame extends Application {
 				Card newCard = theDealer.drawOne();
 				Pane newCardGUI = generateCard(newCard.suite, newCard.value);
 				bankerHand.add(newCard);
+				dealerTotal = gameLogic.handTotal(bankerHand);
+				dealerScore = new Text("Banker: " + dealerTotal);
+				playerTotal = gameLogic.handTotal(playerHand);
+				playerScore = new Text("Player: " + playerTotal);
 				pause.play();
 				bankerCardBox.getChildren().add(newCardGUI);
 				leftVBox.getChildren().removeAll();
