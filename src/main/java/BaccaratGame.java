@@ -42,7 +42,7 @@ public class BaccaratGame extends Application {
 		HBox cardBox = new HBox(10,card1, card2, card3);
 		return cardBox;
 	}
-	public Pane generateCard (String suite, int value){
+	public Pane generateCard (){
 		Pane cardPane = new Pane();
 		final int CARD_WIDTH = 100;
 		final int CARD_HEIGHT = 140;
@@ -51,6 +51,24 @@ public class BaccaratGame extends Application {
 		bg.setArcHeight(20);
 		bg.setFill(Color.WHITE);
 
+		cardPane.getChildren().add(bg);
+		return cardPane;
+	}
+	public Pane generateText(String suite, int value){
+		final int CARD_WIDTH = 100;
+		final int CARD_HEIGHT = 140;
+		String text = Integer.toString(value);
+		if (text.equals("11")){
+			text = "J";
+		}
+		if (text.equals("12")){
+			text = "Q";
+		}
+		if (text.equals("13")){
+			text = "K";
+		}
+
+		Pane textPane = new Pane();
 		Text text1 = new Text(suite);
 		text1.setFont(Font.font(18));
 		text1.setX(CARD_WIDTH - text1.getLayoutBounds().getWidth() - 10);
@@ -61,14 +79,15 @@ public class BaccaratGame extends Application {
 		text2.setX(10);
 		text2.setY(CARD_HEIGHT - 10);
 
-		Text text3 = new Text (Integer.toString(value));
+		Text text3 = new Text (text);
 		text3.setFont(Font.font(18));
 		text3.setX(50);
 		text3.setY(70);
 
-		cardPane.getChildren().addAll(bg, text1, text2,text3);
-		return cardPane;
+		textPane.getChildren().addAll(text1,text2,text3);
+		return textPane;
 	}
+
 	public double evaluateWinnings(){
 		String outcome = gameLogic.whoWon(playerHand,bankerHand);
 		if(Objects.equals(outcome, "player") && Objects.equals(playerBet, "player")){
@@ -105,8 +124,6 @@ public class BaccaratGame extends Application {
 		VBox leftVBox = new VBox(50);
 		leftVBox.setAlignment(Pos.TOP_CENTER);
 
-
-
 		VBox rightVBox = new VBox(20);
 		rightVBox.setAlignment(Pos.CENTER);
 
@@ -115,7 +132,8 @@ public class BaccaratGame extends Application {
 		bet.setDisable(false);
 		bet.setMaxWidth(50);
 		message.setDisable(true);
-		Text money = new Text("BET AMOUNT: ");
+		Text money = new Text("BET AMOUNT: 0");
+		Text total = new Text("TOTAL WINNINGS: " + totalWinnings);
 		Text recipient = new Text("BET ON: ");
 		Button btnPlay = new Button("PLAY");
 		Button btnPlayer = new Button("Player");
@@ -132,7 +150,7 @@ public class BaccaratGame extends Application {
 
 		rootLayout.getChildren().addAll(new StackPane(leftBG, leftVBox), new StackPane(rightBG, rightVBox));
 		root.getChildren().addAll(background, rootLayout);
-		rightVBox.getChildren().addAll(message, bet, btnPlay, money, recipient, buttonsHBox, comboBox);
+		rightVBox.getChildren().addAll(message, bet, btnPlay, money, total, recipient, buttonsHBox, comboBox);
 		comboBox.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
@@ -140,14 +158,18 @@ public class BaccaratGame extends Application {
 				if (selectedOption.equals("Exit")) {
 					primaryStage.close(); // Exit the application
 				} else if (selectedOption.equals("Fresh Start")) {
-					initializeGame(primaryStage);// Refresh the screen (you can add your refresh logic here)
+					totalWinnings = 0;
+					money.setText("BET AMOUNT: " + 0);
+					btnPlayer.setDisable(false);
+					btnBanker.setDisable(false);
+					btnTie.setDisable(false);
 				}
 			}
 		});
 		btnPlayer.setOnAction(event ->{
 			playerBet = "player";
 			String playerInput = bet.getText();
-			int finalBet = Integer.parseInt(playerInput);
+			currentBet = Integer.parseInt(playerInput);
 			money.setText("BET AMOUNT: " + playerInput);
 			recipient.setText("BET ON: " + playerBet);
 			btnPlayer.setDisable(true);
@@ -157,7 +179,7 @@ public class BaccaratGame extends Application {
 		btnTie.setOnAction(event ->{
 			playerBet = "tie";
 			String playerInput = bet.getText();
-			int finalBet = Integer.parseInt(playerInput);
+			currentBet = Integer.parseInt(playerInput);
 			money.setText("BET AMOUNT: " + playerInput);
 			recipient.setText("BET ON: " + playerBet);
 			btnPlayer.setDisable(true);
@@ -167,7 +189,7 @@ public class BaccaratGame extends Application {
 		btnBanker.setOnAction(event ->{
 			playerBet = "banker";
 			String playerInput = bet.getText();
-			int finalBet = Integer.parseInt(playerInput);
+			currentBet = Integer.parseInt(playerInput);
 			money.setText("BET AMOUNT: " + playerInput);
 			recipient.setText("BET ON: " + playerBet);
 			btnPlayer.setDisable(true);
@@ -183,62 +205,77 @@ public class BaccaratGame extends Application {
 			Card bankerCard2 = bankerHand.get(1);
 			Card playerCard1 = playerHand.get(0);
 			Card playerCard2 = playerHand.get(1);
-			Pane card1 = generateCard(bankerCard1.suite,bankerCard1.value);
-			Pane card2 = generateCard(bankerCard2.suite,bankerCard2.value);
-			Pane card3 = generateCard(playerCard1.suite,playerCard1.value);
-			Pane card4 = generateCard(playerCard2.suite,playerCard2.value);
-			HBox bankerCardBox = showCards(card1,card2);
-			HBox playerCardBox = showCards(card3,card4);
+			Pane card1Text = generateText(bankerCard1.suite,bankerCard1.value);
+			Pane card2Text = generateText(bankerCard2.suite,bankerCard2.value);
+			Pane card4Text = generateText(playerCard1.suite,playerCard1.value);
+			Pane card5Text = generateText(playerCard2.suite,playerCard2.value);
+			Pane card1 = generateCard();
+			Pane card2 = generateCard();
+			Pane card3 = generateCard();
+			Pane card4 = generateCard();
+			Pane card5 = generateCard();
+			Pane card6 = generateCard();
+			card1.getChildren().add(card1Text);
+			card2.getChildren().add(card2Text);
+			card4.getChildren().add(card4Text);
+			card5.getChildren().add(card5Text);
+			HBox bankerCardBox = showCards(card1, card2, card3);
+			HBox playerCardBox = showCards(card4, card5, card6);
 			PauseTransition pause = new PauseTransition(Duration.seconds(3));
 			int dealerTotal = gameLogic.handTotal(bankerHand);
 			int playerTotal = gameLogic.handTotal(playerHand);
 			Text dealerScore = new Text("Banker: " + dealerTotal);
 			Text playerScore = new Text("Player: " + playerTotal);
 
-
 			leftVBox.getChildren().setAll(dealerScore,bankerCardBox, playerScore, playerCardBox);
 
 			if(gameLogic.evaluatePlayerDraw(playerHand)){
 				Card newCard = theDealer.drawOne();
-				Pane newCardGUI = generateCard(newCard.suite, newCard.value);
+				Pane newCardText = generateText(newCard.suite, newCard.value);
 				playerHand.add(newCard);
-				playerTotal = gameLogic.handTotal(playerHand);
+				playerTotal += newCard.gameValue;
 				playerScore = new Text("Player: " + playerTotal);
-				dealerTotal = gameLogic.handTotal(bankerHand);
+				dealerTotal += newCard.gameValue;
 				dealerScore = new Text("Banker: " + dealerTotal);
 				pause.play();
-				playerCardBox.getChildren().add(newCardGUI);
+				card3.getChildren().add(newCardText);
 				leftVBox.getChildren().removeAll();
 				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
+
 				if(gameLogic.evaluateBankerDraw(bankerHand,playerHand.get(playerHand.size()-1))){
 					newCard = theDealer.drawOne();
-					newCardGUI = generateCard(newCard.suite, newCard.value);
+					newCardText = generateText(newCard.suite, newCard.value);
 					bankerHand.add(newCard);
-					playerTotal = gameLogic.handTotal(playerHand);
+					playerTotal += newCard.gameValue;
 					playerScore = new Text("Player: " + playerTotal);
-					dealerTotal = gameLogic.handTotal(bankerHand);
+					dealerTotal += newCard.gameValue;
 					dealerScore = new Text("Banker: " + dealerTotal);
 					pause.play();
-					bankerCardBox.getChildren().add(newCardGUI);
+					card6.getChildren().add(newCardText);
 					leftVBox.getChildren().removeAll();
 					leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 				}
 
 			}
-			if(gameLogic.evaluateBankerDraw(bankerHand,null)){
+			else if(gameLogic.evaluateBankerDraw(bankerHand,null)){
 				Card newCard = theDealer.drawOne();
-				Pane newCardGUI = generateCard(newCard.suite, newCard.value);
+				Pane newCardText = generateText(newCard.suite, newCard.value);
 				bankerHand.add(newCard);
-				dealerTotal = gameLogic.handTotal(bankerHand);
-				dealerScore = new Text("Banker: " + dealerTotal);
-				playerTotal = gameLogic.handTotal(playerHand);
+				playerTotal += newCard.gameValue;
 				playerScore = new Text("Player: " + playerTotal);
+				dealerTotal += newCard.gameValue;
+				dealerScore = new Text("Banker: " + dealerTotal);
 				pause.play();
-				bankerCardBox.getChildren().add(newCardGUI);
+				card6.getChildren().add(newCardText);
 				leftVBox.getChildren().removeAll();
 				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 			}
 
+			evaluateWinnings();
+			total.setText("TOTAL WINNINGS: " + totalWinnings);
+			btnPlayer.setDisable(false);
+			btnBanker.setDisable(false);
+			btnTie.setDisable(false);
 		});
 		return root;
 	}
