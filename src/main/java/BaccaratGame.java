@@ -99,6 +99,9 @@ public class BaccaratGame extends Application {
 		else if (Objects.equals(outcome, "tie") && Objects.equals(playerBet, "tie")){
 			totalWinnings += (currentBet*9);
 		}
+		else{
+			totalWinnings -= currentBet;
+		}
 		return totalWinnings;
 	}
 
@@ -239,8 +242,8 @@ public class BaccaratGame extends Application {
 				dealerScore = new Text("Banker: " + dealerTotal);
 				pause.play();
 				card3.getChildren().add(newCardText);
-				leftVBox.getChildren().removeAll();
-				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
+//				leftVBox.getChildren().removeAll();
+//				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 
 				if(gameLogic.evaluateBankerDraw(bankerHand,playerHand.get(playerHand.size()-1))){
 					newCard = theDealer.drawOne();
@@ -252,8 +255,8 @@ public class BaccaratGame extends Application {
 					dealerScore = new Text("Banker: " + dealerTotal);
 					pause.play();
 					card6.getChildren().add(newCardText);
-					leftVBox.getChildren().removeAll();
-					leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
+//					leftVBox.getChildren().removeAll();
+//					leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 				}
 
 			}
@@ -267,8 +270,8 @@ public class BaccaratGame extends Application {
 				dealerScore = new Text("Banker: " + dealerTotal);
 				pause.play();
 				card6.getChildren().add(newCardText);
-				leftVBox.getChildren().removeAll();
-				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
+//				leftVBox.getChildren().removeAll();
+//				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 			}
 
 			evaluateWinnings();
