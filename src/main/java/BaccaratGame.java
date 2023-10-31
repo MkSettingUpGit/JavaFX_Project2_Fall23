@@ -20,7 +20,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.ComboBox;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
-
+import javafx.scene.control.TextArea;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -100,7 +100,9 @@ public class BaccaratGame extends Application {
 			totalWinnings += (currentBet*9);
 		}
 		else{
-			totalWinnings -= currentBet;
+			if(totalWinnings >0) {
+				totalWinnings -= currentBet;
+			}
 		}
 		return totalWinnings;
 	}
@@ -144,6 +146,10 @@ public class BaccaratGame extends Application {
 		Button btnBanker = new Button("Banker");
 		ComboBox<String> comboBox = new ComboBox<>();
 		comboBox.getItems().addAll("Exit", "Fresh Start");
+		TextArea result = new TextArea();
+		result.setEditable(false);
+		result.setWrapText(true);
+		result.setPrefSize(230,120);
 
 		HBox hbox = new HBox();
 		hbox.getChildren().add(comboBox);
@@ -153,7 +159,7 @@ public class BaccaratGame extends Application {
 
 		rootLayout.getChildren().addAll(new StackPane(leftBG, leftVBox), new StackPane(rightBG, rightVBox));
 		root.getChildren().addAll(background, rootLayout);
-		rightVBox.getChildren().addAll(message, bet, btnPlay, money, total, recipient, buttonsHBox, comboBox);
+		rightVBox.getChildren().addAll(result,message, bet, btnPlay, money, total, recipient, buttonsHBox, comboBox);
 		comboBox.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent actionEvent) {
@@ -163,6 +169,7 @@ public class BaccaratGame extends Application {
 				} else if (selectedOption.equals("Fresh Start")) {
 					totalWinnings = 0;
 					money.setText("BET AMOUNT: " + 0);
+					recipient.setText("BET ON: ");
 					btnPlayer.setDisable(false);
 					btnBanker.setDisable(false);
 					btnTie.setDisable(false);
@@ -224,6 +231,8 @@ public class BaccaratGame extends Application {
 			card5.getChildren().add(card5Text);
 			HBox bankerCardBox = showCards(card1, card2, card3);
 			HBox playerCardBox = showCards(card4, card5, card6);
+
+
 			PauseTransition pause = new PauseTransition(Duration.seconds(3));
 			int dealerTotal = gameLogic.handTotal(bankerHand);
 			int playerTotal = gameLogic.handTotal(playerHand);
@@ -234,27 +243,34 @@ public class BaccaratGame extends Application {
 
 			if(gameLogic.evaluatePlayerDraw(playerHand)){
 				Card newCard = theDealer.drawOne();
+				System.out.println("Player New card - " + newCard.value);
 				Pane newCardText = generateText(newCard.suite, newCard.value);
 				playerHand.add(newCard);
-				playerTotal += newCard.gameValue;
-				playerScore = new Text("Player: " + playerTotal);
-				dealerTotal += newCard.gameValue;
-				dealerScore = new Text("Banker: " + dealerTotal);
+				System.out.println("dealer total before - " + dealerTotal);
+				System.out.println("player total before - " + playerTotal);
+				playerTotal = gameLogic.handTotal(playerHand);
+				playerScore.setText("Player: " + playerTotal);
+
 				pause.play();
-				card3.getChildren().add(newCardText);
+				card6.getChildren().add(newCardText);
+				System.out.println("dealer total after - " + dealerTotal);
+				System.out.println("player total after - " + playerTotal);
 //				leftVBox.getChildren().removeAll();
 //				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 
 				if(gameLogic.evaluateBankerDraw(bankerHand,playerHand.get(playerHand.size()-1))){
 					newCard = theDealer.drawOne();
+					System.out.println("Banker New card - " + newCard.value);
 					newCardText = generateText(newCard.suite, newCard.value);
 					bankerHand.add(newCard);
-					playerTotal += newCard.gameValue;
-					playerScore = new Text("Player: " + playerTotal);
-					dealerTotal += newCard.gameValue;
-					dealerScore = new Text("Banker: " + dealerTotal);
+					System.out.println("dealer total before - " + dealerTotal);
+					System.out.println("player total before - " + playerTotal);
+					dealerTotal = gameLogic.handTotal(bankerHand);
+					dealerScore.setText("Banker: " + dealerTotal);
 					pause.play();
-					card6.getChildren().add(newCardText);
+					card3.getChildren().add(newCardText);
+					System.out.println("dealer total after - " + dealerTotal);
+					System.out.println("player total after - " + playerTotal);
 //					leftVBox.getChildren().removeAll();
 //					leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 				}
@@ -262,19 +278,58 @@ public class BaccaratGame extends Application {
 			}
 			else if(gameLogic.evaluateBankerDraw(bankerHand,null)){
 				Card newCard = theDealer.drawOne();
+				System.out.println("Banker New card - " + newCard.value);
 				Pane newCardText = generateText(newCard.suite, newCard.value);
 				bankerHand.add(newCard);
-				playerTotal += newCard.gameValue;
-				playerScore = new Text("Player: " + playerTotal);
-				dealerTotal += newCard.gameValue;
-				dealerScore = new Text("Banker: " + dealerTotal);
+				System.out.println("dealer total before - " + dealerTotal);
+				System.out.println("player total before - " + playerTotal);
+				dealerTotal = gameLogic.handTotal(bankerHand);
+				dealerScore.setText("Banker: " + dealerTotal);
 				pause.play();
-				card6.getChildren().add(newCardText);
+				card3.getChildren().add(newCardText);
+				System.out.println("dealer total after - " + dealerTotal);
+				System.out.println("player total after - " + playerTotal);
+
 //				leftVBox.getChildren().removeAll();
 //				leftVBox.getChildren().addAll(dealerScore,bankerCardBox,playerScore,playerCardBox);
 			}
-
 			evaluateWinnings();
+			String outcome = gameLogic.whoWon(playerHand,bankerHand);
+			if ((Objects.equals(outcome, "player")) && (Objects.equals(playerBet, "player"))){
+				result.setText("Player Total: " + playerTotal + "  Banker Total: " + dealerTotal +
+								"\n Player wins! \n" +
+								"Congrats,you bet Player! You win!");
+			}
+			if ((Objects.equals(outcome, "banker")) && Objects.equals(playerBet, "banker")){
+				result.setText("Player Total: " + playerTotal + "  Banker Total: " + dealerTotal +
+						"\n Banker wins! \n" +
+						"Congrats,you bet Banker! You win!");
+			}
+			if ((Objects.equals(outcome, "tie")) && Objects.equals(playerBet, "tie")){
+				result.setText("Player Total: " + playerTotal + "  Banker Total: " + dealerTotal +
+						"\n Tie! \n" +
+						"Congrats,you bet Tie! You win!");
+			}
+			if ((Objects.equals(outcome, "tie")) && !Objects.equals(playerBet, "tie")){
+				result.setText("Player Total: " + playerTotal + "  Banker Total: " + dealerTotal +
+						"\n Tie! \n" +
+						"Sorry, you bet on " + playerBet +"! You lost your bet!");
+
+			}
+			if ((Objects.equals(outcome, "player")) && !Objects.equals(playerBet, "player")){
+				result.setText("Player Total: " + playerTotal + "  Banker Total: " + dealerTotal +
+						"\n Player wins! \n" +
+						"Sorry, you bet on " + playerBet +"! You lost your bet!");
+
+			}
+			if ((Objects.equals(outcome, "banker")) && !Objects.equals(playerBet, "banker")){
+				result.setText("Player Total: " + playerTotal + "  Banker Total: " + dealerTotal +
+						"\n Banker wins! \n" +
+						"Sorry, you bet on " + playerBet +"! You lost your bet!");
+
+			}
+
+
 			total.setText("TOTAL WINNINGS: " + totalWinnings);
 			btnPlayer.setDisable(false);
 			btnBanker.setDisable(false);
